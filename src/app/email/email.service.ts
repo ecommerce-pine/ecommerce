@@ -76,4 +76,19 @@ export class EmailService {
       return false;
     }
   }
+
+  async sendVerificationEmail(
+    to: string,
+    name: string,
+    url: string,
+  ): Promise<boolean> {
+    const subject = 'Verify your email address';
+    const html = `
+      <p>Hi ${name},</p>
+      <p>Thank you for registering. Please verify your email address by clicking the link below:</p>
+      <a href="${url}">Verify Email</a>
+      <p>If you did not request this, please ignore this email.</p>
+    `;
+    return this.sendEmail({ to, subject, html });
+  }
 }
