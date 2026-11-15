@@ -1,64 +1,58 @@
-import z from "zod";
+import z from 'zod';
 
 export const envSchema = z.object({
-    NODE_ENV: z
-        .enum(["development", "production", "test"])
-        .default("development"),
-    PORT: z.coerce.number().default(8080), // Coerce -> force to be a type
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+  PORT: z.coerce.number().default(8080), // Coerce -> force to be a type
 
-    // CORS
-    CLIENT_URL: z.string().trim().min(1),
-    CORS_OTHER_URL: z.string().trim().optional(),
+  // CORS
+  CLIENT_URL: z.string().trim().min(1),
+  CORS_OTHER_URL: z.string().trim().optional(),
 
-    // Database
-    DB_HOST: z.string().trim().min(1, { message: "DB_HOST is required" }),
-    DB_PORT: z.coerce
-        .number()
-        .int()
-        .min(1)
-        .max(65535, { message: "DB_PORT must be between 1 and 65535" }),
-    DB_USERNAME: z
-        .string()
-        .trim()
-        .min(1, { message: "DB_USERNAME is required" }),
-    DB_PASSWORD: z
-        .string()
-        .trim()
-        .min(1, { message: "DB_PASSWORD is required" }),
-    DB_NAME: z.string().trim().min(1, { message: "DB_NAME is required" }),
-    DB_POOL_MAX: z.coerce.number().default(10),
-    DB_POOL_MIN: z.coerce.number().default(2),
-    DB_POOL_CONNECTION_TIMEOUT_MS: z.coerce.number().default(5000),
-    DB_POOL_IDLE_TIMEOUT_MS: z.coerce.number().default(30000),
+  // Database
+  DB_HOST: z.string().trim().min(1, { message: 'DB_HOST is required' }),
+  DB_PORT: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(65535, { message: 'DB_PORT must be between 1 and 65535' }),
+  DB_USERNAME: z.string().trim().min(1, { message: 'DB_USERNAME is required' }),
+  DB_PASSWORD: z.string().trim().min(1, { message: 'DB_PASSWORD is required' }),
+  DB_NAME: z.string().trim().min(1, { message: 'DB_NAME is required' }),
+  DB_POOL_MAX: z.coerce.number().default(10),
+  DB_POOL_MIN: z.coerce.number().default(2),
+  DB_POOL_CONNECTION_TIMEOUT_MS: z.coerce.number().default(5000),
+  DB_POOL_IDLE_TIMEOUT_MS: z.coerce.number().default(30000),
 
-    // Throttler
-    THROTTLE_TTL_MS: z.coerce.number().default(1000),
-    THROTTLE_LIMIT: z.coerce.number().default(60),
+  // Throttler
+  THROTTLE_TTL_MS: z.coerce.number().default(1000),
+  THROTTLE_LIMIT: z.coerce.number().default(60),
 
-    // // Email (SMTP)
-    SMTP_USER: z.email(),
-    SMTP_PASS: z.string().min(1),
-    SMTP_FROM: z.email(),
+  // // Email (SMTP)
+  SMTP_USER: z.email(),
+  SMTP_PASS: z.string().min(1),
+  SMTP_FROM: z.email(),
 
-    // BETTER_AUTH_SECRET: z.string().min(32),
+  // BETTER_AUTH_SECRET: z.string().min(32),
 
-    // // Internal API
-    // INTERNAL_API_SECRET: z.string().min(32),
+  // // Internal API
+  // INTERNAL_API_SECRET: z.string().min(32),
 });
 
 export type Env = z.infer<typeof envSchema>;
 
 export function validateEnv(config: Record<string, unknown>): Env {
-    const parsed = envSchema.safeParse(config);
+  const parsed = envSchema.safeParse(config);
 
-    if (!parsed.success) {
-        const issues = parsed.error.issues
-            .map((issue) => {
-                return `${issue.path.join(".")} - ${issue.message}`;
-            })
-            .join("\n");
-        throw new Error(`Invalid environment configuration: \n${issues}`);
-    }
+  if (!parsed.success) {
+    const issues = parsed.error.issues
+      .map((issue) => {
+        return `${issue.path.join('.')} - ${issue.message}`;
+      })
+      .join('\n');
+    throw new Error(`Invalid environment configuration: \n${issues}`);
+  }
 
-    return parsed.data;
+  return parsed.data;
 }
