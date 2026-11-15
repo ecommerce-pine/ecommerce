@@ -91,4 +91,19 @@ export class EmailService {
     `;
     return this.sendEmail({ to, subject, html });
   }
+
+  async sendPasswordResetEmail(
+    to: string,
+    name: string,
+    url: string,
+  ): Promise<boolean> {
+    const subject = 'Reset your password';
+    const html = `
+      <p>Hi ${name},</p>
+      <p>You requested a password reset. Please click the link below to reset your password:</p>
+      <a href="${url}">Reset Password</a>
+      <p>If you did not request this, please ignore this email.</p>
+    `;
+    return this.sendEmail({ to, subject, html });
+  }
 }
