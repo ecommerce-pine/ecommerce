@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Verification } from './entities/verification.entity';
 import { Repository } from 'typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { UserService } from '../user/user.service';
+import { apiBadRequest } from 'src/shared/helpers/api-i18n';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
 
     if (!record) {
       this.logger.warn({ msg: 'auth.verify.tokenNotFound', email });
-      throw new BadRequestException('Invalid verification token');
+      apiBadRequest('errors.auth.verificationFailed');
     }
 
     if (record.expiresAt.getTime() < Date.now()) {
@@ -31,7 +32,7 @@ export class AuthService {
         id: record.id,
       });
       this.logger.warn({ msg: 'auth.verify.tokenExpired', email });
-      throw new BadRequestException('Verification token has expired');
+      apiBadRequest('errors.auth.tokenExpired');
     }
 
     if (record.identifier.toLocaleLowerCase() !== email.toLocaleLowerCase()) {
@@ -40,7 +41,7 @@ export class AuthService {
         tokenEmail: record.identifier,
         providedEmail: email,
       });
-      throw new BadRequestException('Email does not match the token');
+      apiBadRequest('errors.auth.emailMistmatch');
     }
 
     await this.userService.verifyEmail(email);

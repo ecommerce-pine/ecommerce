@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { apiNotFound } from 'src/shared/helpers/api-i18n';
 
 @Injectable()
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
       where: { email },
     });
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) apiNotFound('errors.common.userNotFound');
 
     return this.userRepository.update(
       {
