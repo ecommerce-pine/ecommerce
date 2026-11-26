@@ -6,13 +6,21 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { SessionAuthService } from './session-auth/session-auth.service';
 import { User } from '../user/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from '../user/dto/user-response.dto';
+import { ResEx } from 'src/swagger/response-example';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -44,6 +52,15 @@ export class AuthController {
   }
 
   @Get('verify-email')
+  @ApiOperation({
+    summary: 'Verify email',
+  })
+  @ApiOkResponse({
+    description: 'Email verification result',
+    schema: {
+      example: ResEx.auth.verifyEmail,
+    },
+  })
   async verifyEmail(
     @Query('token') token: string,
     @Query('email') email: string,
@@ -52,6 +69,29 @@ export class AuthController {
   }
 
   @Get('me')
+  @ApiOperation({
+    summary: 'Get current authenticated user (Beaer or cookie session)',
+    operationId: 'auth_get_me',
+  })
+  @ApiOkResponse({
+    description: 'Current authenticated user',
+    schema: {
+      example: ResEx.auth.me,
+    },
+  })
+  @ApiBearerAuth()
+  @ApiBadRequestResponse({
+    description: 'User not authenticated',
+    schema: {
+      example: ResEx.auth.verifyEmailBadRequest,
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    schema: {
+      example: ResEx.auth.verifyEmailNotFound,
+    },
+  })
   async getCurrentUser(@Req() req: any) {
     const session = await this.sessionFromRequest(req);
 
@@ -74,6 +114,17 @@ export class AuthController {
   }
 
   @Get('session')
+  @ApiOperation({
+    summary: 'Get current session (token, expiration, user)',
+    operationId: 'auth_get_session',
+  })
+  @ApiOkResponse({
+    description: 'Current session',
+    schema: {
+      example: ResEx.auth.session,
+    },
+  })
+  @ApiBearerAuth()
   async getSession(@Req() req: any) {
     const session = await this.sessionFromRequest(req);
 
@@ -96,6 +147,17 @@ export class AuthController {
   }
 
   @Get('check')
+  @ApiOperation({
+    summary: 'Check if user is authenticated',
+    operationId: 'auth_check',
+  })
+  @ApiOkResponse({
+    description: 'Check authentication result',
+    schema: {
+      example: ResEx.auth.check,
+    },
+  })
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   async checkAuth(@Req() req: any) {
     const session = await this.sessionFromRequest(req);
